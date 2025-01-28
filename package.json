@@ -26,5 +26,21 @@
     "peerDependencies": {
         "form-data": "4.0.1",
         "whatwg-url": "7.1.0"
+    },
+    "agentConfig": {
+        "pluginType": "elizaos:client:1.0.0",
+        "pluginParameters": {
+            "MOVEMENT_PRIVATE_KEY": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Movement private key is required"
+            },
+            "MOVEMENT_NETWORK": {
+                "type": "string",
+                "enum": ["mainnet", "bardock"],
+                "default": "bardock",
+                "description": "Movement network to connect to"
+            }
+        }
     }
 }
