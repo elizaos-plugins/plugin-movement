@@ -1,5 +1,5 @@
 {
-    "name": "@elizaos/plugin-movement",
+    "name": "@elizaos-plugins/plugin-movement",
     "version": "0.1.8+build.1",
     "main": "dist/index.js",
     "type": "module",
@@ -37,7 +37,10 @@
             },
             "MOVEMENT_NETWORK": {
                 "type": "string",
-                "enum": ["mainnet", "bardock"],
+                "enum": [
+                    "mainnet",
+                    "bardock"
+                ],
                 "default": "bardock",
                 "description": "Movement network to connect to"
             }
