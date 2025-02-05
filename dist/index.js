@@ -27,7 +27,7 @@ import {
 } from "@aptos-labs/ts-sdk";
 import BigNumber from "bignumber.js";
 import NodeCache from "node-cache";
-import * as path from "path";
+import * as path from "node:path";
 
 // src/constants.ts
 var MOVE_DECIMALS = 8;
@@ -108,9 +108,8 @@ var WalletProvider = class {
         console.error(`Attempt ${i + 1} failed:`, error);
         lastError = error;
         if (i < PROVIDER_CONFIG.MAX_RETRIES - 1) {
-          const delay = PROVIDER_CONFIG.RETRY_DELAY * Math.pow(2, i);
+          const delay = PROVIDER_CONFIG.RETRY_DELAY * 2 ** i;
           await new Promise((resolve) => setTimeout(resolve, delay));
-          continue;
         }
       }
     }
@@ -286,8 +285,11 @@ var transfer_default = {
     const text = message.content?.text?.toLowerCase() || "";
     return text.includes("send") && text.includes("move") && text.includes("0x");
   },
-  validate: async (runtime, message) => {
-    elizaLogger.debug("Starting transfer validation for user:", message.userId);
+  validate: async (_runtime, message) => {
+    elizaLogger.debug(
+      "Starting transfer validation for user:",
+      message.userId
+    );
     elizaLogger.debug("Message text:", message.content?.text);
     return true;
   },
@@ -303,10 +305,16 @@ var transfer_default = {
     });
     try {
       const privateKey = runtime.getSetting("MOVEMENT_PRIVATE_KEY");
-      elizaLogger.debug("Got private key:", privateKey ? "Present" : "Missing");
+      elizaLogger.debug(
+        "Got private key:",
+        privateKey ? "Present" : "Missing"
+      );
       const network = runtime.getSetting("MOVEMENT_NETWORK");
       elizaLogger.debug("Network config:", network);
-      elizaLogger.debug("Available networks:", Object.keys(MOVEMENT_NETWORK_CONFIG));
+      elizaLogger.debug(
+        "Available networks:",
+        Object.keys(MOVEMENT_NETWORK_CONFIG)
+      );
       const movementAccount = Account2.fromPrivateKey({
         privateKey: new Ed25519PrivateKey2(
           PrivateKey2.formatPrivateKey(
@@ -315,23 +323,34 @@ var transfer_default = {
           )
         )
       });
-      elizaLogger.debug("Created Movement account:", movementAccount.accountAddress.toStringLong());
+      elizaLogger.debug(
+        "Created Movement account:",
+        movementAccount.accountAddress.toStringLong()
+      );
       const aptosClient = new Aptos2(
         new AptosConfig2({
           network: Network2.CUSTOM,
           fullnode: MOVEMENT_NETWORK_CONFIG[network].fullnode
         })
       );
-      elizaLogger.debug("Created Aptos client with network:", MOVEMENT_NETWORK_CONFIG[network].fullnode);
-      const walletInfo = await walletProvider.get(runtime, message, state);
+      elizaLogger.debug(
+        "Created Aptos client with network:",
+        MOVEMENT_NETWORK_CONFIG[network].fullnode
+      );
+      const walletInfo = await walletProvider.get(
+        runtime,
+        message,
+        state
+      );
       state.walletInfo = walletInfo;
+      let currentState;
       if (!state) {
-        state = await runtime.composeState(message);
+        currentState = await runtime.composeState(message);
       } else {
-        state = await runtime.updateRecentMessageState(state);
+        currentState = await runtime.updateRecentMessageState(state);
       }
       const transferContext = composeContext({
-        state,
+        state: currentState,
         template: transferTemplate
       });
       const content = await generateObjectDeprecated({
@@ -350,7 +369,7 @@ var transfer_default = {
         return false;
       }
       const adjustedAmount = BigInt(
-        Number(content.amount) * Math.pow(10, MOVE_DECIMALS)
+        Number(content.amount) * 10 ** MOVE_DECIMALS
       );
       console.log(
         `Transferring: ${content.amount} tokens (${adjustedAmount} base units)`
