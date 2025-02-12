@@ -282,26 +282,29 @@ var transfer_default = {
     "send"
   ],
   shouldHandle: (message) => {
-    const text = message.content?.text?.toLowerCase() || "";
+    var _a, _b;
+    const text = ((_b = (_a = message.content) == null ? void 0 : _a.text) == null ? void 0 : _b.toLowerCase()) || "";
     return text.includes("send") && text.includes("move") && text.includes("0x");
   },
   validate: async (_runtime, message) => {
+    var _a;
     elizaLogger.debug(
       "Starting transfer validation for user:",
       message.userId
     );
-    elizaLogger.debug("Message text:", message.content?.text);
+    elizaLogger.debug("Message text:", (_a = message.content) == null ? void 0 : _a.text);
     return true;
   },
   priority: 1e3,
   // High priority for transfer actions
   description: "Transfer Move tokens from the agent's wallet to another address",
   handler: async (runtime, message, state, _options, callback) => {
+    var _a, _b;
     elizaLogger.debug("Starting TRANSFER_MOVE handler...");
     elizaLogger.debug("Message:", {
-      text: message.content?.text,
+      text: (_a = message.content) == null ? void 0 : _a.text,
       userId: message.userId,
-      action: message.content?.action
+      action: (_b = message.content) == null ? void 0 : _b.action
     });
     try {
       const privateKey = runtime.getSetting("MOVEMENT_PRIVATE_KEY");
